@@ -1,0 +1,23 @@
+#include <iostream>
+#include "abstractions/gpio/GPIO.hpp"
+#include "abstractions/storage/Storage.hpp"
+#include "abstractions/storage/StorageItem.hpp"
+#include "abstractions/ble/Ble.hpp"
+
+extern "C" void app_main()
+{
+    using namespace RemoteUnlock;
+
+    std::cout << "Initializing Flash Storage" << std::endl;
+    g_Storage.Init();
+
+    auto bleDeviceName = StorageItem<"BLE_DEV_NAME", char[20]>("BMW E36");
+    auto deviceName    = bleDeviceName.Get();
+    std::cout << "Device Name: " << deviceName << std::endl;
+
+    g_BleServer.Init();
+
+    g_Storage.Destroy();
+
+    return;
+}
