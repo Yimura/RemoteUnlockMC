@@ -1,4 +1,5 @@
 #pragma once
+#include "abstractions/storage/StorageItem.hpp"
 
 struct ble_gatt_register_ctxt;
 
@@ -7,6 +8,8 @@ namespace RemoteUnlock
     class Ble
     {
     private:
+        StorageItem<"BLE_DEV_NAME", char[20]> m_DeviceName = StorageItem<"BLE_DEV_NAME", char[20]>("BMW E36");
+
     public:
         Ble()                          = default;
         virtual ~Ble()                 = default;

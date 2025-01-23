@@ -1,4 +1,6 @@
 #include "Ble.hpp"
+
+#include <functional>
 #include <host/ble_hs.h>
 #include <host/ble_uuid.h>
 #include <host/util/util.h>
@@ -7,16 +9,18 @@
 #include <nimble/nimble_port_freertos.h>
 #include <services/gatt/ble_svc_gatt.h>
 #include <services/gap/ble_svc_gap.h>
-#include <functional>
 #include <store/config/ble_store_config.h>
+
+#include "Helper.hpp"
 
 extern "C" void ble_store_config_init(void);
 
 namespace RemoteUnlock
 {
-    constexpr char DEVICE_NAME[] = "BMW E36";
-
-    static int door_lock_chr_read(uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg);
+    static int door_lock_chr_read(uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg)
+    {
+        return 0;
+    }
 
     const ble_uuid16_t svc_uuid             = BLE_UUID16_INIT(0x1337);
     const ble_uuid16_t door_lock_state_uuid = BLE_UUID16_INIT(0x1338);
@@ -33,8 +37,9 @@ namespace RemoteUnlock
         {
          .type            = BLE_GATT_SVC_TYPE_PRIMARY,
          .uuid            = &svc_uuid.u,
-         .characteristics = {&door_lock_state_chr},
+         .characteristics = (struct ble_gatt_chr_def[]){door_lock_state_chr, EMPTY_GATT_CHR_DEF()},
          },
+        EMPTY_GATT_SVC_DEF()
     };
 
     void Ble::GattSvrRegisterCb(ble_gatt_register_ctxt* ctxt, void* arg)
@@ -42,6 +47,10 @@ namespace RemoteUnlock
     }
 
     void Ble::OnStackSync()
+    {
+    }
+
+    void Ble::OnStackErr(int reason)
     {
     }
 
@@ -60,8 +69,10 @@ namespace RemoteUnlock
 
 
 #pragma region GAP
+        auto deviceName = m_DeviceName.Get();
+
         ble_svc_gap_init();
-        if (ble_svc_gap_device_name_set(DEVICE_NAME) != 0)
+        if (ble_svc_gap_device_name_set(deviceName) != 0)
         {
             return false;
         }
