@@ -54,7 +54,7 @@ namespace RemoteUnlock
         StorageItem& operator=(const StorageItem&)     = default;
         StorageItem& operator=(StorageItem&&) noexcept = default;
 
-        const char* Id() const
+        const char* Identifier() const
         {
             return Id.Key();
         }
