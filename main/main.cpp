@@ -16,6 +16,7 @@ extern "C" void app_main()
     std::cout << "Device Name: " << deviceName << std::endl;
 
     g_BleServer.Init();
+    g_BleServer.Run();
 
     g_Storage.Destroy();
 

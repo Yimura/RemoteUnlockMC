@@ -1,16 +1,4 @@
 #include "Ble.hpp"
-
-#include <functional>
-#include <host/ble_hs.h>
-#include <host/ble_uuid.h>
-#include <host/util/util.h>
-#include <nimble/ble.h>
-#include <nimble/nimble_port.h>
-#include <nimble/nimble_port_freertos.h>
-#include <services/gatt/ble_svc_gatt.h>
-#include <services/gap/ble_svc_gap.h>
-#include <store/config/ble_store_config.h>
-
 #include "Helper.hpp"
 
 extern "C" void ble_store_config_init(void);
@@ -41,6 +29,28 @@ namespace RemoteUnlock
          },
         EMPTY_GATT_SVC_DEF()
     };
+
+    Ble::Ble() : m_GapEventHandlers(5)
+    {
+        m_GapEventHandlers[BLE_GAP_EVENT_CONNECT] = [](ble_gap_event* event) {
+            return g_BleServer.GapEventConnect(event);
+        };
+        m_GapEventHandlers[BLE_GAP_EVENT_DISCONNECT] = [](ble_gap_event* event) {
+            return g_BleServer.GapEventDisconnect(event);
+        };
+        m_GapEventHandlers[BLE_GAP_EVENT_CONN_UPDATE] = [](ble_gap_event* event) {
+            return g_BleServer.GapEventConnUpdate(event);
+        };
+        m_GapEventHandlers[BLE_GAP_EVENT_ADV_COMPLETE] = [](ble_gap_event* event) {
+            return g_BleServer.GapEventAdvertisementComplete(event);
+        };
+        m_GapEventHandlers[BLE_GAP_EVENT_SUBSCRIBE] = [](ble_gap_event* event) {
+            return g_BleServer.GapEventAdvertisementComplete(event);
+        };
+        m_GapEventHandlers[BLE_GAP_EVENT_MTU] = [](ble_gap_event* event) {
+            return g_BleServer.GapEventMtuUpdate(event);
+        };
+    }
 
     void Ble::GattSvrRegisterCb(ble_gatt_register_ctxt* ctxt, void* arg)
     {
@@ -75,7 +85,8 @@ namespace RemoteUnlock
 
     void Ble::OnStackSync()
     {
-        std::cout << "Stack Syncronized." << std::endl;
+        std::cout << "Stack Syncronized, starting advertisement init." << std::endl;
+        AdvertisementStart();
     }
 
     void Ble::OnStackErr(int reason)
@@ -96,8 +107,6 @@ namespace RemoteUnlock
             return false;
         }
 
-
-#pragma region GAP
         auto deviceName = m_DeviceName.Get();
 
         ble_svc_gap_init();
@@ -105,21 +114,31 @@ namespace RemoteUnlock
         {
             return false;
         }
-#pragma endregion
 
         ble_svc_gatt_init();
         if (ble_gatts_count_cfg(gatt_svr_svcs) != 0)
         {
+            std::cout << "Failed to count Gatt Services." << std::endl;
+
             return false;
         }
 
         if (ble_gatts_add_svcs(gatt_svr_svcs) != 0)
         {
+            std::cout << "Failed to add Gatt services." << std::endl;
+
             return false;
         }
 
         NimbleHostConfigInit();
         return true;
+    }
+
+    void Ble::Run()
+    {
+        std::cout << "Starting BLE server" << std::endl;
+
+        nimble_port_run();
     }
 
     void Ble::NimbleHostConfigInit()
