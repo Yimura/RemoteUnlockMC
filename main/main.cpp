@@ -1,4 +1,4 @@
-#include <iostream>
+#include "common.hpp"
 #include "abstractions/gpio/GPIO.hpp"
 #include "abstractions/storage/Storage.hpp"
 #include "abstractions/storage/StorageItem.hpp"
