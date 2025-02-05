@@ -24,6 +24,8 @@ namespace RemoteUnlock
             return DoorLockToggleChrWrite(conn_handle, attr_handle, ctxt, arg);
         });
 
+        bool m_DoorState;
+
     public:
         DoorService();
         virtual ~DoorService();
