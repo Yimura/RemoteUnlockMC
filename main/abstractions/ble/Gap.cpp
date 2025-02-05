@@ -2,6 +2,18 @@
 
 namespace RemoteUnlock
 {
+    bool RemoteUnlock::Ble::GapInit()
+    {
+        auto deviceName = m_DeviceName.Get();
+
+        ble_svc_gap_init();
+        if (ble_svc_gap_device_name_set(deviceName) != 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
     int Ble::GapEventHandler(ble_gap_event* event, void* args)
     {
         if (auto it = m_GapEventHandlers.find(event->type); it != m_GapEventHandlers.end())
@@ -74,6 +86,9 @@ namespace RemoteUnlock
 
     int Ble::GapEventMtuUpdate(ble_gap_event* event)
     {
+        std::cout << "MTU update vent; conn_handle=" << event->mtu.conn_handle << " cid=" << event->mtu.channel_id
+                  << " mtu=" << event->mtu.value << std::endl;
+
         return 0;
     }
 } // namespace RemoteUnlock

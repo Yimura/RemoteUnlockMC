@@ -4,8 +4,7 @@
   "idf.espIdfPath": "/home/printer/esp/v5.4/esp-idf",
   "idf.toolsPath": "/home/printer/.espressif",
   "idf.openOcdConfigs": [
-    "interface/ftdi/esp32_devkitj_v1.cfg",
-    "target/esp32.cfg"
+    "board/esp32-wrover-kit-3.3v.cfg"
   ],
   "C_Cpp.default.cStandard": "c23",
   "C_Cpp.default.cppStandard": "c++23",
@@ -82,6 +81,7 @@
     "__verbose_abort": "cpp",
     "execution": "cpp",
     "ios": "cpp",
-    "locale": "cpp"
+    "locale": "cpp",
+    "regex": "cpp"
   }
 }

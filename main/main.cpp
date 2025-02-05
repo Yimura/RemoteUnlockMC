@@ -4,6 +4,8 @@
 #include "abstractions/storage/StorageItem.hpp"
 #include "abstractions/ble/Ble.hpp"
 
+#include "services/DoorService.hpp"
+
 extern "C" void app_main()
 {
     using namespace RemoteUnlock;
@@ -14,6 +16,8 @@ extern "C" void app_main()
     auto bleDeviceName = StorageItem<"BLE_DEV_NAME", char[20]>("BMW E36");
     auto deviceName    = bleDeviceName.Get();
     std::cout << "Device Name: " << deviceName << std::endl;
+
+    auto doorService = DoorService();
 
     g_BleServer.Init();
     g_BleServer.Run();
