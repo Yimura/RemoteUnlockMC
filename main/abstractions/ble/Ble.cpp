@@ -1,7 +1,7 @@
 #include "Ble.hpp"
 #include "Characteristic.hpp"
 #include "Service.hpp"
-#include "Helper.hpp"
+#include "Helpers.hpp"
 
 extern "C" void ble_store_config_init(void);
 

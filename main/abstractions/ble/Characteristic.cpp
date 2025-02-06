@@ -28,6 +28,11 @@ namespace RemoteUnlock
     int BleCharacteristic::CharacteristicAccessCallback(
         uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg)
     {
+        if (conn_handle == (uint16_t)-1)
+        {
+            std::cout << "characteristic access by nimble stack" << std::endl;
+        }
+
         for (const auto& characteristic : m_Characteristics)
         {
             // match our specific characteristic and make sure it has a valid callback
