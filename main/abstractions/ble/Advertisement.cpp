@@ -76,9 +76,8 @@ namespace RemoteUnlock
         }
 
         /* Set device address */
-        rsp_fields.device_addr      = ADDR_VAL;
-        rsp_fields.device_addr_type = OWNER_ADDR_TYPE;
-        ;
+        rsp_fields.device_addr            = ADDR_VAL;
+        rsp_fields.device_addr_type       = OWNER_ADDR_TYPE;
         rsp_fields.device_addr_is_present = 1;
 
         /* Set URI */
