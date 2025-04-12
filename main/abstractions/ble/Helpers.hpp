@@ -55,3 +55,14 @@ inline constexpr bool MbufReadPartial(os_mbuf* mbuff, T& outvalue)
     std::memcpy(&outvalue, mbuff->om_data, sizeof(T));
     return true;
 }
+
+inline constexpr std::string MbufReadString(os_mbuf* mbuff)
+{
+    char* data = new char[mbuff->om_len];
+    std::memcpy(data, mbuff->om_data, mbuff->om_len);
+
+    std::string retvalue(data, mbuff->om_len);
+
+    delete[] data;
+    return retvalue;
+}
