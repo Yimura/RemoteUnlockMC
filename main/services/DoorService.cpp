@@ -11,10 +11,6 @@ namespace RemoteUnlock
         g_BleServer.RegisterService(m_BleService);
     }
 
-    DoorService::~DoorService()
-    {
-    }
-
     int DoorService::DoorLockStateChrAccess(
         uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg)
     {

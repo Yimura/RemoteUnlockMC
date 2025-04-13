@@ -1,7 +1,4 @@
 #pragma once
-#include <array>
-#include <span>
-
 #include "abstractions/ble/Characteristic.hpp"
 #include "abstractions/ble/Service.hpp"
 
@@ -28,7 +25,7 @@ namespace RemoteUnlock
 
     public:
         DoorService();
-        virtual ~DoorService();
+        virtual ~DoorService() = default;
 
         int DoorLockStateChrAccess(uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg);
         int DoorLockToggleChrWrite(uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg);
