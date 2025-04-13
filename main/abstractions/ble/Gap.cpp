@@ -4,10 +4,8 @@ namespace RemoteUnlock
 {
     bool RemoteUnlock::Ble::GapInit()
     {
-        auto deviceName = m_DeviceName.Get();
-
         ble_svc_gap_init();
-        if (ble_svc_gap_device_name_set(deviceName) != 0)
+        if (ble_svc_gap_device_name_set(GetDeviceName()) != 0)
         {
             return false;
         }
