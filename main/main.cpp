@@ -5,6 +5,7 @@
 #include "abstractions/ble/Ble.hpp"
 
 #include "services/DoorService.hpp"
+#include "services/SettingsService.hpp"
 
 extern "C" void app_main()
 {
@@ -16,7 +17,8 @@ extern "C" void app_main()
     auto deviceName = g_BleServer.GetDeviceName();
     std::cout << "Device Name: " << deviceName << std::endl;
 
-    auto doorService = DoorService();
+    auto doorService     = DoorService();
+    auto settingsService = SettingsService();
 
     g_BleServer.Init();
     g_BleServer.Run();
