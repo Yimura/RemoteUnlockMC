@@ -44,6 +44,9 @@ namespace RemoteUnlock
         bool Init();
         void Run();
 
+        const char* GetDeviceName();
+        bool SetDeviceName(const char* new_name);
+
         // Advertisement.cpp
         bool AdvertisementInit();
         bool AdvertisementStart();

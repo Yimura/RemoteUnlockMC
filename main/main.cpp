@@ -13,8 +13,7 @@ extern "C" void app_main()
     std::cout << "Initializing Flash Storage" << std::endl;
     g_Storage.Init();
 
-    auto bleDeviceName = StorageItem<"BLE_DEV_NAME", char[20]>("BMW E36");
-    auto deviceName    = bleDeviceName.Get();
+    auto deviceName = g_BleServer.GetDeviceName();
     std::cout << "Device Name: " << deviceName << std::endl;
 
     auto doorService = DoorService();

@@ -53,6 +53,22 @@ namespace RemoteUnlock
         nimble_port_run();
     }
 
+    const char* Ble::GetDeviceName()
+    {
+        return m_DeviceName.Get();
+    }
+
+    bool Ble::SetDeviceName(const char* new_name)
+    {
+        if (m_DeviceName.Set(new_name))
+        {
+            ble_svc_gap_device_name_set(m_DeviceName.Get());
+
+            return true;
+        }
+        return false;
+    }
+
     void Ble::RegisterService(BleService& service)
     {
         m_Services.push_back(service.Build());
