@@ -69,12 +69,39 @@ namespace RemoteUnlock
             return m_Value;
         }
 
-        void Set(T& newValue)
+        bool Set(T& newValue)
         {
             m_Cached = true;
             m_Value  = newValue;
 
             g_Storage.Set(Id.Key(), newValue);
+
+            return true;
+        }
+
+        bool Set(const char* new_value)
+        {
+            const auto length = strlen(new_value);
+            if (length >= sizeof(m_Value))
+            {
+                return false;
+            }
+
+            for (int i = 0; i < sizeof(m_Value); i++)
+            {
+                if (i < length)
+                {
+                    m_Value[i] = new_value[i];
+
+                    continue;
+                }
+                m_Value[i] = '\0';
+            }
+
+            m_Cached = true;
+            g_Storage.Set(Id.Key(), new_value);
+
+            return true;
         }
     };
 } // namespace RemoteUnlock
