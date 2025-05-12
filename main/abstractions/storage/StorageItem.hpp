@@ -99,7 +99,7 @@ namespace RemoteUnlock
             }
 
             m_Cached = true;
-            g_Storage.Set(Id.Key(), new_value);
+            g_Storage.Set(Id.Key(), m_Value);
 
             return true;
         }
