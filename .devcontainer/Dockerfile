@@ -8,6 +8,9 @@ RUN apt-get update -y && apt-get install udev -y
 
 RUN echo "source /opt/esp/idf/export.sh > /dev/null 2>&1" >> ~/.bashrc
 
+# add dailout group with groupid 986
+RUN groupmod -g 986 uucp && usermod -aG uucp ubuntu
+
 ENTRYPOINT [ "/opt/esp/entrypoint.sh" ]
 
 CMD ["/bin/bash", "-c"]

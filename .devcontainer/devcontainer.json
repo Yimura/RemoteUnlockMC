@@ -17,5 +17,12 @@
 			]
 		}
 	},
-	"runArgs": ["--privileged"]
+	"mounts": [
+		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/node/.ssh,readonly,type=bind"
+	],
+	"runArgs": [
+		// "--privileged",
+		"--device=/dev/ttyUSB0"
+	],
+	"containerUser": "ubuntu"
 }
