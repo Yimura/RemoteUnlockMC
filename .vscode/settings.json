@@ -1,8 +1,8 @@
 {
   "C_Cpp.intelliSenseEngine": "default",
   "idf.enableIdfComponentManager": true,
-  "idf.espIdfPath": "/home/printer/esp/v5.4/esp-idf",
-  "idf.toolsPath": "/home/printer/.espressif",
+  // "idf.espIdfPath": "/home/printer/esp/v5.4/esp-idf",
+  // "idf.toolsPath": "/home/printer/.espressif",
   "idf.openOcdConfigs": [
     "board/esp32-wrover-kit-3.3v.cfg"
   ],
