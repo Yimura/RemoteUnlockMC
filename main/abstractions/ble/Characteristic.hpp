@@ -24,6 +24,12 @@ namespace RemoteUnlock
         virtual ~BleCharacteristic();
 
         ble_gatt_chr_def Build();
+        /**
+         * @brief Indicates to a connection that a new value can be read.
+         * @param conn_handle Handle of the connection to indicate.
+         * @return true on success, false otherwise.
+         */
+        bool Indicate(uint16_t conn_handle);
 
     private:
         inline static std::vector<BleCharacteristic*> m_Characteristics = {};

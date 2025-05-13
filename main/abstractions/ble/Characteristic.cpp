@@ -25,6 +25,11 @@ namespace RemoteUnlock
         };
     }
 
+    bool BleCharacteristic::Indicate(uint16_t conn_handle)
+    {
+        return ble_gatts_indicate(conn_handle, m_ValueHandle);
+    }
+
     int BleCharacteristic::CharacteristicAccessCallback(
         uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg)
     {
