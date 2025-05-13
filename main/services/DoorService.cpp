@@ -9,6 +9,8 @@ namespace RemoteUnlock
         m_BleService.RegisterCharacteristic(m_DoorLockStateCharacteristic);
         m_BleService.RegisterCharacteristic(m_DoorLockToggleCharacteristic);
         g_BleServer.RegisterService(m_BleService);
+
+        m_DoorRelay.Toggle(m_DoorState);
     }
 
     int DoorService::DoorLockStateChrAccess(
@@ -23,6 +25,8 @@ namespace RemoteUnlock
         uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg)
     {
         MbufReadPartial(ctxt->om, m_DoorState);
+        m_DoorRelay.Toggle(m_DoorState);
+        m_DoorLockStateCharacteristic.Indicate(conn_handle);
 
         return 0;
     }

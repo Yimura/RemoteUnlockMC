@@ -1,6 +1,7 @@
 #pragma once
 #include "abstractions/ble/Characteristic.hpp"
 #include "abstractions/ble/Service.hpp"
+#include "abstractions/gpio/GPIO.hpp"
 
 namespace RemoteUnlock
 {
@@ -21,6 +22,7 @@ namespace RemoteUnlock
             return DoorLockToggleChrWrite(conn_handle, attr_handle, ctxt, arg);
         });
 
+        GPIO<GPIO_NUM_33, GPIO_MODE_OUTPUT> m_DoorRelay{};
         bool m_DoorState;
 
     public:
