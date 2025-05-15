@@ -2,13 +2,14 @@
 #include "abstractions/ble/Characteristic.hpp"
 #include "abstractions/ble/Service.hpp"
 #include "abstractions/gpio/GPIO.hpp"
+#include "ServiceDefinitions.hpp"
 
 namespace RemoteUnlock
 {
     class DoorService final
     {
     private:
-        BleService m_BleService = BleService({.u16 = BLE_UUID16_INIT(0x1337)}, BLE_GATT_SVC_TYPE_PRIMARY);
+        BleService m_BleService = BleService({.u128 = DoorServiceUUID}, BLE_GATT_SVC_TYPE_PRIMARY);
 
         BleCharacteristic m_DoorLockStateCharacteristic =
             BleCharacteristic({.u16 = BLE_UUID16_INIT(0x1338)}, BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_INDICATE,

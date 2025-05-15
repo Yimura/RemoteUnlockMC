@@ -1,13 +1,14 @@
 #pragma once
 #include "abstractions/ble/Characteristic.hpp"
 #include "abstractions/ble/Service.hpp"
+#include "ServiceDefinitions.hpp"
 
 namespace RemoteUnlock
 {
     class SettingsService
     {
     private:
-        BleService m_BleService = BleService({.u16 = BLE_UUID16_INIT(0x9595)}, BLE_GATT_SVC_TYPE_PRIMARY);
+        BleService m_BleService = BleService({.u128 = SettingsServiceUUID}, BLE_GATT_SVC_TYPE_PRIMARY);
 
         BleCharacteristic m_DeviceNameModifyCharacteristic =
             BleCharacteristic({.u16 = BLE_UUID16_INIT(0x9596)}, BLE_GATT_CHR_F_WRITE,
