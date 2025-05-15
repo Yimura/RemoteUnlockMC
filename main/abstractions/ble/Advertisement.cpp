@@ -1,4 +1,5 @@
 #include "Ble.hpp"
+#include "services/ServiceDefinitions.hpp"
 
 namespace RemoteUnlock
 {
@@ -83,6 +84,11 @@ namespace RemoteUnlock
         /* Set URI */
         // rsp_fields.uri     = esp_uri;
         // rsp_fields.uri_len = sizeof(esp_uri);
+
+        std::unique_ptr uuids           = std::make_unique<ble_uuid128_t>(DoorServiceUUID);
+        rsp_fields.uuids128             = uuids.get();
+        rsp_fields.num_uuids128         = 1;
+        rsp_fields.uuids128_is_complete = true;
 
         /* Set advertising interval */
         rsp_fields.adv_itvl            = BLE_GAP_ADV_ITVL_MS(500);
