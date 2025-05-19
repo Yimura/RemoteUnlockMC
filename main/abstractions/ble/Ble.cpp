@@ -63,6 +63,7 @@ namespace RemoteUnlock
         if (m_DeviceName.Set(new_name))
         {
             ble_svc_gap_device_name_set(m_DeviceName.Get());
+            std::cout << "Set device name to: " << m_DeviceName.Get() << std::endl;
 
             return true;
         }
