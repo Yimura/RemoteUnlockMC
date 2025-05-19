@@ -5,7 +5,7 @@ namespace RemoteUnlock
 {
     SettingsService::SettingsService()
     {
-        m_BleService.RegisterCharacteristic(m_DeviceNameModifyCharacteristic);
+        m_BleService.RegisterCharacteristic(m_SetDeviceNameCharacteristic);
         g_BleServer.RegisterService(m_BleService);
     }
 
