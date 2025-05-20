@@ -7,4 +7,6 @@
 namespace RemoteUnlock
 {
     using namespace al;
-}
+
+    constexpr auto DEFAULT_DEVICE_NAME = "Remote Unlock";
+} // namespace RemoteUnlock

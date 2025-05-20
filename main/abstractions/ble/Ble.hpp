@@ -25,7 +25,7 @@ namespace RemoteUnlock
     class Ble
     {
     private:
-        StorageItem<"BLE_DEV_NAME", char[20]> m_DeviceName = StorageItem<"BLE_DEV_NAME", char[20]>("BMW E36");
+        StorageItem<"BLE_DEV_NAME", char[20]> m_DeviceName = StorageItem<"BLE_DEV_NAME", char[20]>(DEFAULT_DEVICE_NAME);
 
         std::unordered_map<int, GapEventCb> m_GapEventHandlers;
         std::vector<ble_gatt_svc_def> m_Services;
