@@ -23,10 +23,10 @@ namespace RemoteUnlock
 
     int Ble::GapEventConnect(ble_gap_event* event)
     {
-        std::cout << "New connection was established" << std::endl;
+        LOG(VERBOSE) << "New connection was established";
         if (event->connect.status != 0)
         {
-            std::cout << "Connection failure, restarting advertisement." << std::endl;
+            LOG(VERBOSE) << "Connection failure, restarting advertisement.";
             AdvertisementStart();
             return 0;
         }
@@ -34,7 +34,7 @@ namespace RemoteUnlock
         ble_gap_conn_desc desc;
         if (int rc = ble_gap_conn_find(event->connect.conn_handle, &desc); rc != 0)
         {
-            std::cout << "failed to find connection by handle, err code: " << rc << std::endl;
+            LOG(WARNING) << "failed to find connection by handle, err code: " << rc;
 
             return rc;
         }
@@ -49,14 +49,14 @@ namespace RemoteUnlock
         int rc = ble_gap_update_params(event->connect.conn_handle, &params);
         if (rc != 0)
         {
-            std::cout << "failed to update connection params, error code: " << rc << std::endl;
+            LOG(WARNING) << "failed to update connection params, error code: " << rc;
         }
         return rc;
     }
 
     int Ble::GapEventDisconnect(ble_gap_event* event)
     {
-        std::cout << "disconnected from peer, reason: " << event->disconnect.reason << std::endl;
+        LOG(INFO) << "disconnected from peer, reason: " << event->disconnect.reason;
 
         AdvertisementStart();
         return 0;
@@ -64,14 +64,14 @@ namespace RemoteUnlock
 
     int Ble::GapEventConnUpdate(ble_gap_event* event)
     {
-        std::cout << "Received connection update." << std::endl;
+        LOG(VERBOSE) << "Received connection update.";
 
         return 0;
     }
 
     int Ble::GapEventAdvertisementComplete(ble_gap_event* event)
     {
-        std::cout << "advertisement complete" << std::endl;
+        LOG(VERBOSE) << "advertisement complete";
 
         AdvertisementStart();
         return 0;
@@ -84,8 +84,8 @@ namespace RemoteUnlock
 
     int Ble::GapEventMtuUpdate(ble_gap_event* event)
     {
-        std::cout << "MTU update vent; conn_handle=" << event->mtu.conn_handle << " cid=" << event->mtu.channel_id
-                  << " mtu=" << event->mtu.value << std::endl;
+        LOG(VERBOSE) << "MTU update vent; conn_handle=" << event->mtu.conn_handle << " cid=" << event->mtu.channel_id
+                     << " mtu=" << event->mtu.value;
 
         return 0;
     }

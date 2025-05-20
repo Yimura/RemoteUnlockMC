@@ -14,13 +14,13 @@ namespace RemoteUnlock
 
     void Ble::OnStackSync()
     {
-        std::cout << "Stack Syncronized, starting advertisement init." << std::endl;
+        LOG(VERBOSE) << "Stack Syncronized, starting advertisement init.";
         AdvertisementStart();
     }
 
     void Ble::OnStackErr(int reason)
     {
-        std::cout << "Stack error with reason: " << reason << std::endl;
+        LOG(VERBOSE) << "Stack error with reason: " << reason;
     }
 
     void Ble::Destroy()
@@ -48,7 +48,7 @@ namespace RemoteUnlock
 
     void Ble::Run()
     {
-        std::cout << "Starting BLE server" << std::endl;
+        LOG(INFO) << "Starting BLE server";
 
         nimble_port_run();
     }
@@ -63,7 +63,7 @@ namespace RemoteUnlock
         if (m_DeviceName.Set(new_name))
         {
             ble_svc_gap_device_name_set(m_DeviceName.Get());
-            std::cout << "Set device name to: " << m_DeviceName.Get() << std::endl;
+            LOG(VERBOSE) << "Set device name to: " << m_DeviceName.Get();
 
             return true;
         }

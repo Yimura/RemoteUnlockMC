@@ -13,7 +13,7 @@ namespace RemoteUnlock
         rc = ble_hs_util_ensure_addr(0);
         if (rc != 0)
         {
-            std::cout << "Device does not have any available bluetooth address configured!" << std::endl;
+            LOG(FATAL) << "Device does not have any available bluetooth address configured!";
 
             return false;
         }
@@ -21,7 +21,7 @@ namespace RemoteUnlock
         rc = ble_hs_id_infer_auto(0, &OWNER_ADDR_TYPE);
         if (rc != 0)
         {
-            std::cout << "Failed to infer address type, error code: " << rc << std::endl;
+            LOG(FATAL) << "Failed to infer address type, error code: " << rc;
 
             return false;
         }
@@ -29,7 +29,7 @@ namespace RemoteUnlock
         rc = ble_hs_id_copy_addr(OWNER_ADDR_TYPE, ADDR_VAL, nullptr);
         if (rc != 0)
         {
-            std::cout << "Failed to copy device address, error code: " << rc << std::endl;
+            LOG(FATAL) << "Failed to copy device address, error code: " << rc;
 
             return false;
         }
@@ -72,7 +72,7 @@ namespace RemoteUnlock
         int rc = ble_gap_adv_set_fields(&adv_fields);
         if (rc != 0)
         {
-            std::cout << "failed to set advertising data, error code: " << rc << std::endl;
+            LOG(FATAL) << "failed to set advertising data, error code: " << rc;
             return false;
         }
 
@@ -98,7 +98,7 @@ namespace RemoteUnlock
         rc = ble_gap_adv_rsp_set_fields(&rsp_fields);
         if (rc != 0)
         {
-            std::cout << "failed to set scan response data, error code: " << rc << std::endl;
+            LOG(FATAL) << "failed to set scan response data, error code: " << rc;
             return false;
         }
 
@@ -115,11 +115,11 @@ namespace RemoteUnlock
             [](ble_gap_event* event, void* args) -> int { return g_BleServer.GapEventHandler(event, args); }, NULL);
         if (rc != 0)
         {
-            std::cout << "failed to start advertising, error code: " << rc << std::endl;
+            LOG(FATAL) << "failed to start advertising, error code: " << rc;
             return false;
         }
 
-        std::cout << "Advertised!" << std::endl;
+        LOG(INFO) << "Advertised!";
         return true;
     }
 

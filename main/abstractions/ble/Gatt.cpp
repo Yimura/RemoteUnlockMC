@@ -11,14 +11,14 @@ namespace RemoteUnlock
         ble_svc_gatt_init();
         if (ble_gatts_count_cfg(m_Services.data()) != 0)
         {
-            std::cout << "Failed to count Gatt Services." << std::endl;
+            LOG(FATAL) << "Failed to count Gatt Services.";
 
             return false;
         }
 
         if (ble_gatts_add_svcs(m_Services.data()) != 0)
         {
-            std::cout << "Failed to add Gatt services." << std::endl;
+            LOG(FATAL) << "Failed to add Gatt services.";
 
             return false;
         }
@@ -33,25 +33,25 @@ namespace RemoteUnlock
         switch (ctxt->op)
         {
         case BLE_GATT_REGISTER_OP_SVC:
-            std::cout << "Registered bluetooth service " << ble_uuid_to_str(ctxt->svc.svc_def->uuid, bleUUID)
-                      << " with handle=" << ctxt->svc.handle << std::endl;
+            LOG(VERBOSE) << "Registered bluetooth service " << ble_uuid_to_str(ctxt->svc.svc_def->uuid, bleUUID)
+                         << " with handle=" << ctxt->svc.handle;
 
             break;
 
         case BLE_GATT_REGISTER_OP_CHR:
-            std::cout << "Registered bluetooth characteristic " << ble_uuid_to_str(ctxt->chr.chr_def->uuid, bleUUID)
-                      << " with handle=" << ctxt->chr.def_handle << std::endl;
+            LOG(VERBOSE) << "Registered bluetooth characteristic " << ble_uuid_to_str(ctxt->chr.chr_def->uuid, bleUUID)
+                         << " with handle=" << ctxt->chr.def_handle;
 
             break;
 
         case BLE_GATT_REGISTER_OP_DSC:
-            std::cout << "Registered bluetooth descriptor " << ble_uuid_to_str(ctxt->dsc.dsc_def->uuid, bleUUID)
-                      << " with handle=" << ctxt->dsc.handle << std::endl;
+            LOG(VERBOSE) << "Registered bluetooth descriptor " << ble_uuid_to_str(ctxt->dsc.dsc_def->uuid, bleUUID)
+                         << " with handle=" << ctxt->dsc.handle;
 
             break;
 
         default:
-            std::cout << "Unknown event caught: " << ctxt->op << std::endl;
+            LOG(WARNING) << "Unknown event caught: " << ctxt->op;
 
             break;
         }

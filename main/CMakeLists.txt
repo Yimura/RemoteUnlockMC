@@ -12,3 +12,6 @@ idf_component_register(SRCS "${srcs}"
 )
 
 target_precompile_headers(${COMPONENT_LIB} PRIVATE "./common.hpp")
+
+include(../cmake/AsyncLogger.cmake)
+target_link_libraries(${COMPONENT_LIB} PRIVATE AsyncLogger)

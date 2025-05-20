@@ -7,15 +7,19 @@
 #include "services/DoorService.hpp"
 #include "services/SettingsService.hpp"
 
+#include "LogHelper.hpp"
+
 extern "C" void app_main()
 {
     using namespace RemoteUnlock;
 
-    std::cout << "Initializing Flash Storage" << std::endl;
+    auto logger = LogHelper();
+
+    LOG(INFO) << "Initializing Flash Storage";
     g_Storage.Init();
 
     auto deviceName = g_BleServer.GetDeviceName();
-    std::cout << "Device Name: " << deviceName << std::endl;
+    LOG(INFO) << "Device Name: " << deviceName;
 
     auto doorService     = DoorService();
     auto settingsService = SettingsService();

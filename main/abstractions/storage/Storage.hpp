@@ -73,14 +73,14 @@ namespace RemoteUnlock
             esp_err_t err = nvs_open(NAMESPACE, NVS_READWRITE, &nvs_handle);
             if (err != ESP_OK)
             {
-                std::cout << "Failed to open NVS handle." << std::endl;
+                LOG(FATAL) << "Failed to open NVS handle.";
                 return false;
             }
 
             err = nvs_set_blob(nvs_handle, key, &value, sizeof(T));
             if (err != ESP_OK)
             {
-                std::cout << "Failed to write value." << std::endl;
+                LOG(WARNING) << "Failed to write value.";
 
                 return false;
             }
@@ -88,7 +88,7 @@ namespace RemoteUnlock
             err = nvs_commit(nvs_handle);
             if (err != ESP_OK)
             {
-                std::cout << "Failed to commit data to NVS." << std::endl;
+                LOG(WARNING) << "Failed to commit data to NVS.";
 
                 return false;
             }

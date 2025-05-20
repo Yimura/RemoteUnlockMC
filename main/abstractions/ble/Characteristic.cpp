@@ -35,7 +35,7 @@ namespace RemoteUnlock
     {
         if (conn_handle == (uint16_t)-1)
         {
-            std::cout << "characteristic access by nimble stack" << std::endl;
+            LOG(VERBOSE) << "characteristic access by nimble stack";
         }
 
         for (const auto& characteristic : m_Characteristics)
