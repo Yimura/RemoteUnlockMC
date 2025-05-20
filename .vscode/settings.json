@@ -97,6 +97,9 @@
     "semaphore": "cpp",
     "stdfloat": "cpp",
     "stop_token": "cpp",
-    "thread": "cpp"
+    "thread": "cpp",
+    "source_location": "cpp",
+    "complex": "cpp",
+    "filesystem": "cpp"
   }
 }
