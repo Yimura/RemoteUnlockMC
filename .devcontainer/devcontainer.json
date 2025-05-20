@@ -14,7 +14,8 @@
 			"extensions": [
 				"espressif.esp-idf-extension",
 				"espressif.esp-idf-web",
-				"ms-vscode.cpptools"
+				"ms-vscode.cpptools",
+				"josetr.cmake-language-support-vscode"
 			]
 		}
 	},
