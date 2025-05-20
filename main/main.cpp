@@ -5,6 +5,7 @@
 #include "abstractions/ble/Ble.hpp"
 
 #include "services/DoorService.hpp"
+#include "services/StatusService.hpp"
 #include "services/SettingsService.hpp"
 
 #include "LogHelper.hpp"
@@ -22,6 +23,7 @@ extern "C" void app_main()
     LOG(INFO) << "Device Name: " << deviceName;
 
     auto doorService     = DoorService();
+    auto statusService   = StatusService();
     auto settingsService = SettingsService();
 
     g_BleServer.Init();
