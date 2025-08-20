@@ -20,12 +20,15 @@ namespace RemoteUnlock
             return VoltageChrAccess(conn_handle, attr_handle, ctxt, arg);
         });
 
-        float m_Voltage = 14.5;
+        float m_Voltage = 12.5;
 
     public:
         StatusService();
         virtual ~StatusService() = default;
 
         int VoltageChrAccess(uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg);
+
+    private:
+        void UpdateStatusElements();
     };
 } // namespace RemoteUnlock
