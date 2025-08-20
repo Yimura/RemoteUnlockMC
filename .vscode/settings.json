@@ -1,15 +1,13 @@
 {
   "C_Cpp.intelliSenseEngine": "default",
   "idf.enableIdfComponentManager": true,
-  // "idf.espIdfPath": "/home/printer/esp/v5.4/esp-idf",
-  // "idf.toolsPath": "/home/printer/.espressif",
   "idf.openOcdConfigs": [
-    "board/esp32-wrover-kit-3.3v.cfg"
+    "board/esp32s3-builtin.cfg"
   ],
   "C_Cpp.default.cStandard": "c23",
   "C_Cpp.default.cppStandard": "c++23",
   "idf.flashType": "UART",
-  "idf.port": "/dev/ttyUSB0",
+  "idf.port": "/dev/ttyACM0",
   "files.associations": {
     "iostream": "cpp",
     "concepts": "cpp",
@@ -101,5 +99,10 @@
     "source_location": "cpp",
     "complex": "cpp",
     "filesystem": "cpp"
+  },
+  "idf.customExtraVars": {
+    "OPENOCD_SCRIPTS": "/home/andre/.espressif/tools/openocd-esp32/v0.12.0-esp32-20240318/openocd-esp32/share/openocd/scripts",
+    "ESP_ROM_ELF_DIR": "/home/andre/.espressif/tools/esp-rom-elfs/20230320/",
+    "IDF_TARGET": "esp32s3"
   }
 }

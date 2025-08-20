@@ -23,8 +23,8 @@
 		"source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/ubuntu/.ssh,readonly,type=bind"
 	],
 	"runArgs": [
-		// "--privileged",
-		"--device=/dev/ttyUSB0"
+		"--privileged",
+		"--device=/dev/bus/usb"
 	],
 	"containerUser": "ubuntu"
 }
