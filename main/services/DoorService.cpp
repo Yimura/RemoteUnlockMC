@@ -11,6 +11,7 @@ namespace RemoteUnlock
         g_BleServer.RegisterService(m_BleService);
 
         m_DoorRelay.Toggle(m_DoorState);
+        m_DoorIndicatorLight.SetColor(RED, 32);
     }
 
     int DoorService::DoorLockStateChrAccess(
@@ -26,6 +27,7 @@ namespace RemoteUnlock
     {
         MbufReadPartial(ctxt->om, m_DoorState);
         m_DoorRelay.Toggle(m_DoorState);
+        m_DoorIndicatorLight.SetColor(m_DoorState ? GREEN : RED, 32);
         m_DoorLockStateCharacteristic.Indicate(conn_handle);
 
         return 0;

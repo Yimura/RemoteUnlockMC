@@ -2,6 +2,7 @@
 #include "abstractions/ble/Characteristic.hpp"
 #include "abstractions/ble/Service.hpp"
 #include "abstractions/gpio/GPIO.hpp"
+#include "abstractions/onboard_led/OnboardLed.hpp"
 #include "ServiceDefinitions.hpp"
 
 namespace RemoteUnlock
@@ -30,6 +31,7 @@ namespace RemoteUnlock
             return DoorLockToggleChrWrite(conn_handle, attr_handle, ctxt, arg);
         });
 
+        OnboardLed<GPIO_NUM_48> m_DoorIndicatorLight{};
         GPIO<GPIO_NUM_33, GPIO_MODE_OUTPUT> m_DoorRelay{};
         bool m_DoorState;
 
