@@ -25,7 +25,11 @@ namespace RemoteUnlock
     int DoorService::DoorLockToggleChrWrite(
         uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg)
     {
-        MbufReadPartial(ctxt->om, m_DoorState);
+        if (!MbufReadPartial(ctxt->om, m_DoorState))
+        {
+            return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+        }
+
         m_DoorRelay.Toggle(m_DoorState);
         m_DoorIndicatorLight.SetColor(m_DoorState ? GREEN : RED, 32);
         m_DoorLockStateCharacteristic.Indicate(conn_handle);
