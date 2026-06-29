@@ -27,7 +27,7 @@ namespace RemoteUnlock
 
     bool BleCharacteristic::Indicate(uint16_t conn_handle)
     {
-        return ble_gatts_indicate(conn_handle, m_ValueHandle);
+        return ble_gatts_indicate(conn_handle, m_ValueHandle) == 0;
     }
 
     int BleCharacteristic::CharacteristicAccessCallback(
