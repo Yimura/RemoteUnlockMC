@@ -23,14 +23,39 @@ Common targets (run inside the wrapper above):
 
 ```sh
 idf.py build
-idf.py -p /dev/ttyUSB0 flash monitor
-idf.py menuconfig                # edit sdkconfig
-idf.py reconfigure               # re-run cmake without rebuilding
-idf.py update-dependencies       # bump managed_components per ^semver in idf_component.yml
-idf.py fullclean                 # nukes build/ and managed_components/
+idf.py -p /dev/ttyACM0 flash monitor   # USB-CDC on the S3 dev board → ttyACM0, not ttyUSB0
+idf.py menuconfig                      # edit sdkconfig
+idf.py reconfigure                     # re-run cmake without rebuilding
+idf.py update-dependencies             # bump managed_components per ^semver in idf_component.yml
+idf.py fullclean                       # nukes build/ and managed_components/
 ```
 
 There is **no test suite** and **no lint target**. Code style is enforced by `.clang-format` (Microsoft base, custom alignment rules).
+
+### Verifying a change on hardware
+
+After any code change that's expected to run on the device, build + flash + watch boot. `idf.py monitor` refuses to run without a TTY on stdin (`Error: Monitor requires standard input to be attached to TTY`), so non-interactive verification goes through pyserial directly. The `verify-esp-idf-on-device` skill in `.claude/skills/` wraps the whole loop; the kernel of it is:
+
+```sh
+python <<'PYEOF'
+import serial, time, sys
+ser = serial.Serial("/dev/ttyACM0", 115200, timeout=1)
+# DTR low + RTS pulse leaves the chip out of the bootloader after flashing
+ser.setDTR(False); ser.setRTS(True); time.sleep(0.1); ser.setRTS(False); time.sleep(0.1)
+deadline = time.time() + 20
+buf = b""
+while time.time() < deadline:
+    chunk = ser.read(512)
+    if not chunk: continue
+    sys.stdout.buffer.write(chunk); sys.stdout.flush()
+    buf += chunk
+    if b"Advertised!" in buf: break
+ser.close()
+sys.exit(0 if b"Advertised!" in buf else 2)
+PYEOF
+```
+
+`pyserial` lives in the IDF venv — source `export.sh` before invoking. `Advertised!` is the log line that fires after `ble_gap_adv_start` succeeds in `Advertisement.cpp`; reaching it means the full boot sequence (NVS, BLE host, GAP/GATT registration, scheduler start, advertisement) worked. Use a different token for changes that surface earlier in boot.
 
 ### sdkconfig hygiene across IDF upgrades
 
@@ -68,6 +93,16 @@ Boot sequence (`main/main.cpp`):
 The service ctor calls `m_BleService.RegisterCharacteristic(...)` for each characteristic then `g_BleServer.RegisterService(m_BleService)`. UUIDs for the three services and their characteristics are declared as `constexpr ble_uuid128_t` literals in the service headers.
 
 To **add a new BLE service**: define UUIDs in `ServiceDefinitions.hpp`, create a `<Name>Service.{hpp,cpp}` in `main/services/` following the existing pattern, then construct an instance in `app_main` **before** `g_BleServer.Init()`.
+
+### NimBLE patterns to follow when extending the BLE layer
+
+These are encoded in the abstractions but easy to misuse when writing the next service:
+
+- **Register characteristics through `BleService::Register(chr1, chr2, ...)`**, not via separate `RegisterCharacteristic` + `g_BleServer.RegisterService` calls. The variadic `Register` couples the two so a new characteristic can't be silently absent from the GATT table because someone forgot the second line.
+- **The access callback dispatcher uses NimBLE's per-characteristic `arg` pointer** (`chr_def.arg = this` set in `BleCharacteristic::Build`). Don't reintroduce a separate registry or attr-handle lookup.
+- **Reads from `os_mbuf` must use `MbufReadExact` / `MbufReadPartial` / `MbufReadString` from `Helpers.hpp`**, which walk the full chained payload via `OS_MBUF_PKTLEN` + `ble_hs_mbuf_to_flat`. Inspecting `om_len` directly only sees the head segment and silently truncates long writes split across mbufs.
+- **Cross-task state needs `std::atomic`.** Characteristic values written by the `g_Scheduler` task and read by the NimBLE host task (e.g. `StatusService::m_Voltage`) are a data race under the C++ memory model even when aligned 32-bit access happens to be atomic on Xtensa LX7. Use `std::atomic<T>` with `memory_order_relaxed`.
+- **Access callbacks should return `BLE_ATT_ERR_*` on bad input**, not 0. A peer writing a payload that fails `MbufReadPartial`'s size check should see the error so it doesn't think the write succeeded (see `DoorService::DoorLockToggleChrWrite`).
 
 ### Template abstractions
 
