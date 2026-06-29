@@ -1,7 +1,6 @@
 #pragma once
 #include <cstdint>
 #include <functional>
-#include <vector>
 
 #include <host/ble_gatt.h>
 #include <host/ble_uuid.h>
@@ -21,7 +20,7 @@ namespace RemoteUnlock
 
     public:
         BleCharacteristic(ble_uuid_any_t uuid, uint16_t flags, BleChrAccessCb access_callback);
-        virtual ~BleCharacteristic();
+        virtual ~BleCharacteristic() = default;
 
         ble_gatt_chr_def Build();
         /**
@@ -32,7 +31,6 @@ namespace RemoteUnlock
         bool Indicate(uint16_t conn_handle);
 
     private:
-        inline static std::vector<BleCharacteristic*> m_Characteristics = {};
         static int CharacteristicAccessCallback(
             uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg);
     };

@@ -1,19 +1,10 @@
 #include "Characteristic.hpp"
 
-#include <algorithm>
-
 namespace RemoteUnlock
 {
     BleCharacteristic::BleCharacteristic(ble_uuid_any_t uuid, uint16_t flags, BleChrAccessCb access_callback)
         : m_Uuid(uuid), m_Flags(flags), m_Callback(access_callback), m_ValueHandle(0)
     {
-        BleCharacteristic::m_Characteristics.push_back(this);
-    }
-
-    BleCharacteristic::~BleCharacteristic()
-    {
-        m_Characteristics.erase(
-            std::remove(m_Characteristics.begin(), m_Characteristics.end(), this), m_Characteristics.end());
     }
 
     ble_gatt_chr_def BleCharacteristic::Build()
@@ -21,6 +12,7 @@ namespace RemoteUnlock
         return ble_gatt_chr_def{
             .uuid       = &m_Uuid.u,
             .access_cb  = BleCharacteristic::CharacteristicAccessCallback,
+            .arg        = this,
             .flags      = m_Flags,
             .val_handle = &m_ValueHandle,
         };
@@ -39,20 +31,19 @@ namespace RemoteUnlock
             LOG(VERBOSE) << "characteristic access by nimble stack";
         }
 
-        for (const auto& characteristic : m_Characteristics)
+        auto* characteristic = static_cast<BleCharacteristic*>(arg);
+        if (!characteristic || !characteristic->m_Callback)
         {
-            // match our specific characteristic and make sure it has a valid callback
-            if (attr_handle == characteristic->m_ValueHandle && characteristic->m_Callback)
-            {
-                bool can_access_attr =
-                    ((characteristic->m_Flags & BLE_GATT_CHR_F_WRITE) && ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR) ||
-                    (characteristic->m_Flags & BLE_GATT_CHR_F_READ && ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR);
-                if (can_access_attr)
-                {
-                    return characteristic->m_Callback(conn_handle, attr_handle, ctxt, arg);
-                }
-            }
+            return 0;
         }
-        return 0;
+
+        const bool can_access_attr =
+            ((characteristic->m_Flags & BLE_GATT_CHR_F_WRITE) && ctxt->op == BLE_GATT_ACCESS_OP_WRITE_CHR) ||
+            ((characteristic->m_Flags & BLE_GATT_CHR_F_READ) && ctxt->op == BLE_GATT_ACCESS_OP_READ_CHR);
+        if (!can_access_attr)
+        {
+            return 0;
+        }
+        return characteristic->m_Callback(conn_handle, attr_handle, ctxt, arg);
     }
 } // namespace RemoteUnlock
