@@ -1,4 +1,6 @@
 #pragma once
+#include <atomic>
+
 #include "abstractions/ble/Characteristic.hpp"
 #include "abstractions/ble/Service.hpp"
 #include "ServiceDefinitions.hpp"
@@ -20,7 +22,7 @@ namespace RemoteUnlock
             return VoltageChrAccess(conn_handle, attr_handle, ctxt, arg);
         });
 
-        float m_Voltage = 12.5;
+        std::atomic<float> m_Voltage{12.5f};
 
     public:
         StatusService();

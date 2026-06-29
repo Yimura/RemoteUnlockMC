@@ -15,13 +15,14 @@ namespace RemoteUnlock
     int StatusService::VoltageChrAccess(
         uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg)
     {
-        MbufAppend(ctxt->om, m_Voltage);
+        const float voltage = m_Voltage.load(std::memory_order_relaxed);
+        MbufAppend(ctxt->om, voltage);
 
         return 0;
     }
 
     void StatusService::UpdateStatusElements()
     {
-        m_Voltage = Random::BetweenFloat(10.5f, 14.f);
+        m_Voltage.store(Random::BetweenFloat(10.5f, 14.f), std::memory_order_relaxed);
     }
 } // namespace RemoteUnlock
