@@ -1,5 +1,6 @@
 #include "Service.hpp"
 
+#include "Ble.hpp"
 #include "Characteristic.hpp"
 #include "Helpers.hpp"
 
@@ -30,5 +31,10 @@ namespace RemoteUnlock
     void BleService::RegisterCharacteristic(BleCharacteristic& characteristic)
     {
         m_Characteristics.push_back(&characteristic);
+    }
+
+    void BleService::RegisterSelf()
+    {
+        g_BleServer.RegisterService(*this);
     }
 } // namespace RemoteUnlock

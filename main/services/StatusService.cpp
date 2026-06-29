@@ -7,8 +7,7 @@ namespace RemoteUnlock
 {
     StatusService::StatusService()
     {
-        m_BleService.RegisterCharacteristic(m_VoltageChrAccess);
-        g_BleServer.RegisterService(m_BleService);
+        m_BleService.Register(m_VoltageChrAccess);
 
         g_Scheduler.AddJob([this] { UpdateStatusElements(); }, 5000);
     }

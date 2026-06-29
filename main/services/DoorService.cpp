@@ -6,9 +6,7 @@ namespace RemoteUnlock
 {
     DoorService::DoorService() : m_DoorState(false)
     {
-        m_BleService.RegisterCharacteristic(m_DoorLockStateCharacteristic);
-        m_BleService.RegisterCharacteristic(m_DoorLockToggleCharacteristic);
-        g_BleServer.RegisterService(m_BleService);
+        m_BleService.Register(m_DoorLockStateCharacteristic, m_DoorLockToggleCharacteristic);
 
         m_DoorRelay.Toggle(m_DoorState);
         m_DoorIndicatorLight.SetColor(RED, 32);
