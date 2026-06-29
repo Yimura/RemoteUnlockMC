@@ -62,12 +62,10 @@ inline std::string MbufReadString(os_mbuf* mbuff)
 {
     const uint16_t total = OS_MBUF_PKTLEN(mbuff);
 
-    char* data = new char[total];
+    std::string retvalue(total, '\0');
     uint16_t copied = 0;
-    ble_hs_mbuf_to_flat(mbuff, data, total, &copied);
+    ble_hs_mbuf_to_flat(mbuff, retvalue.data(), total, &copied);
+    retvalue.resize(copied);
 
-    std::string retvalue(data, copied);
-
-    delete[] data;
     return retvalue;
 }
