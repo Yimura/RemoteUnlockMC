@@ -25,6 +25,8 @@ namespace RemoteUnlock
 
         std::vector<ble_gatt_svc_def> m_Services;
 
+        bool m_PortInitialized = false;
+
     public:
         Ble();
         virtual ~Ble()                 = default;

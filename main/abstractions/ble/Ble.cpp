@@ -22,20 +22,34 @@ namespace RemoteUnlock
 
     void Ble::Destroy()
     {
+        if (!m_PortInitialized)
+        {
+            return;
+        }
         nimble_port_stop();
+        nimble_port_deinit();
+        m_PortInitialized = false;
     }
 
     bool Ble::Init()
     {
+        if (m_PortInitialized)
+        {
+            return true;
+        }
+
         esp_err_t result = nimble_port_init();
         if (result != ESP_OK)
         {
+            LOG(WARNING) << "nimble_port_init failed: " << result;
             return false;
         }
+        m_PortInitialized = true;
 
-        // I sincerely hope call order is preserved, plz complier
         if (!GapInit() || !GattInit())
         {
+            nimble_port_deinit();
+            m_PortInitialized = false;
             return false;
         }
 
