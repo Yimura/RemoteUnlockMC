@@ -85,8 +85,7 @@ namespace RemoteUnlock
         // rsp_fields.uri     = esp_uri;
         // rsp_fields.uri_len = sizeof(esp_uri);
 
-        std::unique_ptr uuids           = std::make_unique<ble_uuid128_t>(DoorServiceUUID);
-        rsp_fields.uuids128             = uuids.get();
+        rsp_fields.uuids128             = &DoorServiceUUID;
         rsp_fields.num_uuids128         = 1;
         rsp_fields.uuids128_is_complete = true;
 
