@@ -1,7 +1,5 @@
 #pragma once
 
-#include <functional>
-#include <unordered_map>
 #include <vector>
 
 #include <host/ble_hs.h>
@@ -20,14 +18,11 @@
 
 namespace RemoteUnlock
 {
-    using GapEventCb = int (*)(ble_gap_event*);
-
     class Ble
     {
     private:
         StorageItem<"BLE_DEV_NAME", char[20]> m_DeviceName = StorageItem<"BLE_DEV_NAME", char[20]>(DEFAULT_DEVICE_NAME);
 
-        std::unordered_map<int, GapEventCb> m_GapEventHandlers;
         std::vector<ble_gatt_svc_def> m_Services;
 
     public:
@@ -70,8 +65,6 @@ namespace RemoteUnlock
         void RegisterService(BleService& service);
 
     private:
-        void RegisterEventHandlers();
-
         void NimbleHostConfigInit();
     };
 

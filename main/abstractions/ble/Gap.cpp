@@ -14,9 +14,20 @@ namespace RemoteUnlock
 
     int Ble::GapEventHandler(ble_gap_event* event, void* args)
     {
-        if (auto it = m_GapEventHandlers.find(event->type); it != m_GapEventHandlers.end())
+        switch (event->type)
         {
-            return it->second(event);
+        case BLE_GAP_EVENT_CONNECT:
+            return GapEventConnect(event);
+        case BLE_GAP_EVENT_DISCONNECT:
+            return GapEventDisconnect(event);
+        case BLE_GAP_EVENT_CONN_UPDATE:
+            return GapEventConnUpdate(event);
+        case BLE_GAP_EVENT_ADV_COMPLETE:
+            return GapEventAdvertisementComplete(event);
+        case BLE_GAP_EVENT_SUBSCRIBE:
+            return GapEventSubscribe(event);
+        case BLE_GAP_EVENT_MTU:
+            return GapEventMtuUpdate(event);
         }
         return 0;
     }

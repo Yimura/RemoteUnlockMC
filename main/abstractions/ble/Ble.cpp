@@ -7,10 +7,7 @@ extern "C" void ble_store_config_init(void);
 
 namespace RemoteUnlock
 {
-    Ble::Ble() : m_GapEventHandlers(5)
-    {
-        RegisterEventHandlers();
-    }
+    Ble::Ble() = default;
 
     void Ble::OnStackSync()
     {
@@ -73,28 +70,6 @@ namespace RemoteUnlock
     void Ble::RegisterService(BleService& service)
     {
         m_Services.push_back(service.Build());
-    }
-
-    void Ble::RegisterEventHandlers()
-    {
-        m_GapEventHandlers[BLE_GAP_EVENT_CONNECT] = [](ble_gap_event* event) {
-            return g_BleServer.GapEventConnect(event);
-        };
-        m_GapEventHandlers[BLE_GAP_EVENT_DISCONNECT] = [](ble_gap_event* event) {
-            return g_BleServer.GapEventDisconnect(event);
-        };
-        m_GapEventHandlers[BLE_GAP_EVENT_CONN_UPDATE] = [](ble_gap_event* event) {
-            return g_BleServer.GapEventConnUpdate(event);
-        };
-        m_GapEventHandlers[BLE_GAP_EVENT_ADV_COMPLETE] = [](ble_gap_event* event) {
-            return g_BleServer.GapEventAdvertisementComplete(event);
-        };
-        m_GapEventHandlers[BLE_GAP_EVENT_SUBSCRIBE] = [](ble_gap_event* event) {
-            return g_BleServer.GapEventSubscribe(event);
-        };
-        m_GapEventHandlers[BLE_GAP_EVENT_MTU] = [](ble_gap_event* event) {
-            return g_BleServer.GapEventMtuUpdate(event);
-        };
     }
 
     void Ble::NimbleHostConfigInit()
