@@ -12,7 +12,8 @@ namespace RemoteUnlock
 
     BleCharacteristic::~BleCharacteristic()
     {
-        auto _ = std::remove(m_Characteristics.begin(), m_Characteristics.end(), this);
+        m_Characteristics.erase(
+            std::remove(m_Characteristics.begin(), m_Characteristics.end(), this), m_Characteristics.end());
     }
 
     ble_gatt_chr_def BleCharacteristic::Build()
