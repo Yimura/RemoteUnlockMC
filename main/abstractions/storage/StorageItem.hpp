@@ -71,11 +71,13 @@ namespace RemoteUnlock
 
         bool Set(T& newValue)
         {
-            m_Cached = true;
+            if (!g_Storage.Set(Id.Key(), newValue))
+            {
+                return false;
+            }
+
             m_Value  = newValue;
-
-            g_Storage.Set(Id.Key(), newValue);
-
+            m_Cached = true;
             return true;
         }
 
@@ -87,20 +89,19 @@ namespace RemoteUnlock
                 return false;
             }
 
-            for (int i = 0; i < sizeof(m_Value); i++)
+            T tmp = {};
+            for (size_t i = 0; i < length; i++)
             {
-                if (i < length)
-                {
-                    m_Value[i] = new_value[i];
-
-                    continue;
-                }
-                m_Value[i] = '\0';
+                tmp[i] = new_value[i];
             }
 
-            m_Cached = true;
-            g_Storage.Set(Id.Key(), m_Value);
+            if (!g_Storage.Set(Id.Key(), tmp))
+            {
+                return false;
+            }
 
+            std::memcpy(m_Value, tmp, sizeof(T));
+            m_Cached = true;
             return true;
         }
     };
