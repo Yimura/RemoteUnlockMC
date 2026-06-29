@@ -26,7 +26,7 @@ namespace RemoteUnlock
     {
     private:
         mutable T m_Value;
-        mutable bool m_Cached;
+        mutable bool m_Cached = false;
 
     public:
         StorageItem(T defaultValue)
