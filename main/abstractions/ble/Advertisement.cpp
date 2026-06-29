@@ -3,8 +3,8 @@
 
 namespace RemoteUnlock
 {
-    uint8_t OWNER_ADDR_TYPE;
-    uint8_t ADDR_VAL[6] = {0};
+    uint8_t g_OwnerAddrType;
+    uint8_t g_AddrVal[6] = {0};
 
     bool Ble::AdvertisementInit()
     {
@@ -18,7 +18,7 @@ namespace RemoteUnlock
             return false;
         }
 
-        rc = ble_hs_id_infer_auto(0, &OWNER_ADDR_TYPE);
+        rc = ble_hs_id_infer_auto(0, &g_OwnerAddrType);
         if (rc != 0)
         {
             LOG(FATAL) << "Failed to infer address type, error code: " << rc;
@@ -26,7 +26,7 @@ namespace RemoteUnlock
             return false;
         }
 
-        rc = ble_hs_id_copy_addr(OWNER_ADDR_TYPE, ADDR_VAL, nullptr);
+        rc = ble_hs_id_copy_addr(g_OwnerAddrType, g_AddrVal, nullptr);
         if (rc != 0)
         {
             LOG(FATAL) << "Failed to copy device address, error code: " << rc;
@@ -77,8 +77,8 @@ namespace RemoteUnlock
         }
 
         /* Set device address */
-        rsp_fields.device_addr            = ADDR_VAL;
-        rsp_fields.device_addr_type       = OWNER_ADDR_TYPE;
+        rsp_fields.device_addr            = g_AddrVal;
+        rsp_fields.device_addr_type       = g_OwnerAddrType;
         rsp_fields.device_addr_is_present = 1;
 
         /* Set URI */
@@ -111,7 +111,7 @@ namespace RemoteUnlock
         adv_params.itvl_max = BLE_GAP_ADV_ITVL_MS(510);
 
         /* Start advertising */
-        rc = ble_gap_adv_start(OWNER_ADDR_TYPE, NULL, BLE_HS_FOREVER, &adv_params,
+        rc = ble_gap_adv_start(g_OwnerAddrType, NULL, BLE_HS_FOREVER, &adv_params,
             [](ble_gap_event* event, void* args) -> int { return g_BleServer.GapEventHandler(event, args); }, NULL);
         if (rc != 0)
         {
