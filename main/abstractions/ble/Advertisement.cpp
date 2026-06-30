@@ -1,6 +1,9 @@
 #include "Ble.hpp"
 #include "services/ServiceDefinitions.hpp"
 
+#include <nimble/hci_common.h>
+#include <os/os_mbuf.h>
+
 namespace RemoteUnlock
 {
     uint8_t g_OwnerAddrType;
@@ -39,82 +42,112 @@ namespace RemoteUnlock
     }
 
     constexpr auto BLE_GAP_LE_ROLE_PERIPHERAL                = 0x0;
-    constexpr auto BLE_GAP_APPEARANCE_GENERIC_REMOTE_CONTROL = 0x0180;
+    // Set to 0x0000 (Generic) during pairing debug so iOS does not engage its
+    // HID-over-GATT special handling. Restore 0x0180 (Generic Remote Control) once
+    // pairing is stable.
+    constexpr auto BLE_GAP_APPEARANCE_GENERIC_REMOTE_CONTROL = 0x0000;
+    constexpr uint8_t EXT_ADV_INSTANCE                       = 0;
+    constexpr size_t EXT_ADV_DATA_MAX                        = 255;
 
     bool Ble::AdvertisementStart()
     {
-        struct ble_hs_adv_fields adv_fields  = {0};
-        struct ble_hs_adv_fields rsp_fields  = {0};
-        struct ble_gap_adv_params adv_params = {0};
+        if (ble_gap_ext_adv_active(EXT_ADV_INSTANCE))
+        {
+            return true;
+        }
 
-        /* Set advertising flags */
-        adv_fields.flags = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
+        ble_gap_ext_adv_params params = {};
+        params.connectable            = 1;
+        params.scannable              = 0;
+        params.legacy_pdu             = 0;
+        params.include_tx_power       = 1;
+        params.own_addr_type          = g_OwnerAddrType;
+        params.primary_phy            = BLE_HCI_LE_PHY_1M;
+        params.secondary_phy          = BLE_HCI_LE_PHY_2M;
+        params.tx_power               = 127;
+        params.sid                    = 0;
+        // Hot advert cadence: 200 ms. At 500 ms the Android central's
+        // BALANCED/LOW_POWER scan window only catches one PDU per scan slot
+        // and first-hit while approaching the vehicle took up to a minute,
+        // making CONFIRM mode unusably slow. 200 ms triples the hit rate
+        // for a modest power increase the peripheral can absorb.
+        params.itvl_min               = BLE_GAP_ADV_ITVL_MS(200);
+        params.itvl_max               = BLE_GAP_ADV_ITVL_MS(210);
 
-        /* Set device name */
-        const char* name            = ble_svc_gap_device_name();
-        adv_fields.name             = (uint8_t*)name;
-        adv_fields.name_len         = strlen(name);
-        adv_fields.name_is_complete = 1;
-
-        /* Set device tx power */
-        adv_fields.tx_pwr_lvl            = BLE_HS_ADV_TX_PWR_LVL_AUTO;
-        adv_fields.tx_pwr_lvl_is_present = 1;
-
-        /* Set device appearance */
-        adv_fields.appearance            = BLE_GAP_APPEARANCE_GENERIC_REMOTE_CONTROL;
-        adv_fields.appearance_is_present = 1;
-
-        /* Set device LE role */
-        adv_fields.le_role            = BLE_GAP_LE_ROLE_PERIPHERAL;
-        adv_fields.le_role_is_present = 1;
-
-        /* Set advertiement fields */
-        int rc = ble_gap_adv_set_fields(&adv_fields);
+        int8_t selected_tx_power = 0;
+        int rc                   = ble_gap_ext_adv_configure(EXT_ADV_INSTANCE, &params, &selected_tx_power,
+                              [](ble_gap_event* event, void* args) -> int { return g_BleServer.GapEventHandler(event, args); },
+                              nullptr);
         if (rc != 0)
         {
-            LOG(FATAL) << "failed to set advertising data, error code: " << rc;
+            LOG(FATAL) << "ble_gap_ext_adv_configure failed: " << rc;
             return false;
         }
 
-        /* Set device address */
-        rsp_fields.device_addr            = g_AddrVal;
-        rsp_fields.device_addr_type       = g_OwnerAddrType;
-        rsp_fields.device_addr_is_present = 1;
+        ble_hs_adv_fields fields = {0};
+        fields.flags             = BLE_HS_ADV_F_DISC_GEN | BLE_HS_ADV_F_BREDR_UNSUP;
 
-        /* Set URI */
-        // rsp_fields.uri     = esp_uri;
-        // rsp_fields.uri_len = sizeof(esp_uri);
+        const char* name        = ble_svc_gap_device_name();
+        fields.name             = reinterpret_cast<uint8_t*>(const_cast<char*>(name));
+        fields.name_len         = strlen(name);
+        fields.name_is_complete = 1;
 
-        rsp_fields.uuids128             = &DoorServiceUUID;
-        rsp_fields.num_uuids128         = 1;
-        rsp_fields.uuids128_is_complete = true;
+        // Skip explicit AD tx-power field. With ext adv on a legacy-controller
+        // target the host's HCI Read Advertising Channel TX Power returns
+        // CMD_DISALLOWED (0x0C), failing ble_hs_adv_set_fields. Controller
+        // already tracks per-instance TX power set via params.tx_power.
 
-        /* Set advertising interval */
-        rsp_fields.adv_itvl            = BLE_GAP_ADV_ITVL_MS(500);
-        rsp_fields.adv_itvl_is_present = 1;
+        fields.appearance            = BLE_GAP_APPEARANCE_GENERIC_REMOTE_CONTROL;
+        fields.appearance_is_present = 1;
 
-        /* Set scan response fields */
-        rc = ble_gap_adv_rsp_set_fields(&rsp_fields);
+        fields.le_role            = BLE_GAP_LE_ROLE_PERIPHERAL;
+        fields.le_role_is_present = 1;
+
+        fields.uuids128             = &DoorServiceUUID;
+        fields.num_uuids128         = 1;
+        fields.uuids128_is_complete = true;
+
+        fields.device_addr            = g_AddrVal;
+        fields.device_addr_type       = g_OwnerAddrType;
+        fields.device_addr_is_present = 1;
+
+        fields.adv_itvl            = BLE_GAP_ADV_ITVL_MS(200);
+        fields.adv_itvl_is_present = 1;
+
+        uint8_t buf[EXT_ADV_DATA_MAX];
+        uint8_t buf_len = 0;
+        rc              = ble_hs_adv_set_fields(&fields, buf, &buf_len, EXT_ADV_DATA_MAX);
         if (rc != 0)
         {
-            LOG(FATAL) << "failed to set scan response data, error code: " << rc;
+            LOG(FATAL) << "ble_hs_adv_set_fields failed: " << rc;
             return false;
         }
 
-        /* Set non-connetable and general discoverable mode to be a beacon */
-        adv_params.conn_mode = BLE_GAP_CONN_MODE_UND;
-        adv_params.disc_mode = BLE_GAP_DISC_MODE_GEN;
-
-        /* Set advertising interval */
-        adv_params.itvl_min = BLE_GAP_ADV_ITVL_MS(500);
-        adv_params.itvl_max = BLE_GAP_ADV_ITVL_MS(510);
-
-        /* Start advertising */
-        rc = ble_gap_adv_start(g_OwnerAddrType, NULL, BLE_HS_FOREVER, &adv_params,
-            [](ble_gap_event* event, void* args) -> int { return g_BleServer.GapEventHandler(event, args); }, NULL);
+        os_mbuf* mbuf = os_msys_get_pkthdr(buf_len, 0);
+        if (!mbuf)
+        {
+            LOG(FATAL) << "os_msys_get_pkthdr returned null";
+            return false;
+        }
+        rc = os_mbuf_append(mbuf, buf, buf_len);
         if (rc != 0)
         {
-            LOG(FATAL) << "failed to start advertising, error code: " << rc;
+            os_mbuf_free_chain(mbuf);
+            LOG(FATAL) << "os_mbuf_append failed: " << rc;
+            return false;
+        }
+
+        rc = ble_gap_ext_adv_set_data(EXT_ADV_INSTANCE, mbuf);
+        if (rc != 0)
+        {
+            LOG(FATAL) << "ble_gap_ext_adv_set_data failed: " << rc;
+            return false;
+        }
+
+        rc = ble_gap_ext_adv_start(EXT_ADV_INSTANCE, 0, 0);
+        if (rc != 0)
+        {
+            LOG(FATAL) << "ble_gap_ext_adv_start failed: " << rc;
             return false;
         }
 
