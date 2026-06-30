@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_set>
 #include <vector>
 
 #include <host/ble_hs.h>
@@ -18,6 +19,11 @@
 
 namespace RemoteUnlock
 {
+    // Fixed passkey injected on BLE_GAP_EVENT_PASSKEY_ACTION. Central must enter
+    // this value to complete LE Secure Connections pairing with MITM protection.
+    // Provisional shared secret — revisit once a per-device secret or OOB flow lands.
+    constexpr uint32_t BLE_FIXED_PASSKEY = 123456;
+
     class Ble
     {
     private:
@@ -56,6 +62,15 @@ namespace RemoteUnlock
         int GapEventAdvertisementComplete(ble_gap_event* event);
         int GapEventSubscribe(ble_gap_event* event);
         int GapEventMtuUpdate(ble_gap_event* event);
+        int GapEventPasskeyAction(ble_gap_event* event);
+        int GapEventEncryptionChange(ble_gap_event* event);
+        int GapEventRepeatPairing(ble_gap_event* event);
+        int GapEventIdentityResolved(ble_gap_event* event);
+
+        // Conn handles that observed BLE_GAP_EVENT_PASSKEY_ACTION since their
+        // most recent BLE_GAP_EVENT_CONNECT. Used by GapEventEncryptionChange
+        // to label the encryption as FRESH-PAIRING vs REUSED-BOND.
+        std::unordered_set<uint16_t> m_PairingConnHandles;
 
         // Gatt.cpp
         void GattSvrSubscribe(ble_gap_event* event);
