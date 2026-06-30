@@ -19,15 +19,15 @@ namespace RemoteUnlock
     private:
         BleService m_BleService = BleService({.u128 = DoorServiceUUID}, BLE_GATT_SVC_TYPE_PRIMARY);
 
-        BleCharacteristic m_DoorLockStateCharacteristic =
-            BleCharacteristic({.u128 = DoorLockStateChrUUID}, BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_INDICATE,
-                [this](uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg) -> int {
+        BleCharacteristic m_DoorLockStateCharacteristic = BleCharacteristic({.u128 = DoorLockStateChrUUID},
+            BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_READ_ENC | BLE_GATT_CHR_F_READ_AUTHEN | BLE_GATT_CHR_F_INDICATE,
+            [this](uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg) -> int {
             return DoorLockStateChrAccess(conn_handle, attr_handle, ctxt, arg);
         });
 
-        BleCharacteristic m_DoorLockToggleCharacteristic =
-            BleCharacteristic({.u128 = DoorLockWriteChrUUID}, BLE_GATT_CHR_F_WRITE,
-                [this](uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg) -> int {
+        BleCharacteristic m_DoorLockToggleCharacteristic = BleCharacteristic({.u128 = DoorLockWriteChrUUID},
+            BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_WRITE_ENC | BLE_GATT_CHR_F_WRITE_AUTHEN,
+            [this](uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg) -> int {
             return DoorLockToggleChrWrite(conn_handle, attr_handle, ctxt, arg);
         });
 

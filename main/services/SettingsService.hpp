@@ -14,9 +14,9 @@ namespace RemoteUnlock
     private:
         BleService m_BleService = BleService({.u128 = SettingsServiceUUID}, BLE_GATT_SVC_TYPE_PRIMARY);
 
-        BleCharacteristic m_SetDeviceNameCharacteristic =
-            BleCharacteristic({.u128 = SetNameChrUUID}, BLE_GATT_CHR_F_WRITE,
-                [this](uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg) -> int {
+        BleCharacteristic m_SetDeviceNameCharacteristic = BleCharacteristic({.u128 = SetNameChrUUID},
+            BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_WRITE_ENC | BLE_GATT_CHR_F_WRITE_AUTHEN,
+            [this](uint16_t conn_handle, uint16_t attr_handle, ble_gatt_access_ctxt* ctxt, void* arg) -> int {
             return DeviceNameModifyChrWrite(conn_handle, attr_handle, ctxt, arg);
         });
 
