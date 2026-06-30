@@ -24,5 +24,9 @@ namespace RemoteUnlock
     void StatusService::UpdateStatusElements()
     {
         m_Voltage.store(Random::BetweenFloat(10.5f, 14.f), std::memory_order_relaxed);
+        // Broadcast to every subscribed central so RN / Proximity service
+        // pick up the new reading without polling. ble_gatts_chr_updated
+        // honours each peer's CCCD setting and skips unsubscribed peers.
+        m_VoltageChrAccess.IndicateAll();
     }
 } // namespace RemoteUnlock
